@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+
+        #app {
+            height: 80%;
+            width: 80%;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+        }
+
+        .title {
+            position: absolute;
+            padding: 2px 12px;
+            background-color: #bbbbbb;
+            border-radius: 2px;
+            top: 4px;
+            color: #333333;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="title">标题</div>
+    </div>
+
+    <script src="three.js"></script>
+
+    <script src="js/controls/OrbitControls.js"></script>
+
+    <script>
+        var scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0xcce0ff, 0.0006);
+        scene.background = new THREE.Color(0xf0f0f0)
+        //scene.add(new THREE.AmbientLight(0xf0f0f0))
+        scene.add(new THREE.GridHelper(100000, 1000, 0xa5a5a5, 0xdedede))
+        // scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
+
+
+        var camera = new THREE.OrthographicCamera(app.clientWidth / - 2, app.clientWidth / 2, app.clientHeight / 2, app.clientHeight / - 2, 0.1, 10000);
+        // camera.position.set(350, 100, 1000)
+        // camera.lookAt(new THREE.Vector3(350, 20, 0))
+        // scene.add(new THREE.CameraHelper(camera));
+
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setSize(app.clientWidth, app.clientHeight);
+        app.appendChild(renderer.domElement);
+
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement)
+        controls.maxPolarAngle = 0
+        controls.maxZoom = 2
+        controls.minZoom = 0.4
+        // 当使用了 OrbitControls 时, camera.lookAt 方法将不再起作用 ,
+        // 此时也应该用 controls.object.position.set 代替 camera.position.set
+        controls.object.position.set(0, 1000, 600);
+        controls.target = new THREE.Vector3(0, 0, 0);
+
+
+        // 显示中文需要引用中文字体
+        // ttf -> .typeface.json 
+        // 在线转换 https://gero3.github.io/facetype.js/ 转换后文件体积较大
+        new THREE.FontLoader().load('fonts/helvetiker_bold.typeface.json', function (font) {
+            var geometry = new THREE.TextGeometry('ABCD 123456 闪光湖面', {
+                font: font,
+                size: 20,
+                height: 1,
+                curveSegments: 12,
+            });
+
+            let cube = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            scene.add(cube);
+            cube.rotation.x -= 0.5 * Math.PI
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+
+            controls.update()
+        }
+        animate();
+
+    </script>
+</body>
+
+</html>

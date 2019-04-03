@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+
+        #app {
+            /*  font-size: 0; solving the problem that the parent el is 3px higher than the child el */
+            font-size: 0;
+            height: 90%;
+            width: 90%;
+            position: fixed;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+    <script src="three.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+
+    <script src='EventKeeper.js'></script>
+
+    <script>
+
+        var scene = new THREE.Scene()
+        scene.background = new THREE.Color(0xf0f0f0)
+        scene.add(new THREE.AmbientLight(0xf0f0f0))
+        scene.fog = new THREE.FogExp2(0xcce0ff, 0.0006)
+        scene.add(new THREE.GridHelper(10000, 200, 0xa5a5a5, 0xdedede))
+        scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
+
+        var camera = new THREE.PerspectiveCamera(75, app.clientWidth / app.clientHeight, 1, 2000);
+        camera.position.set(20, 120, 280)
+        camera.lookAt(0, 0, 0)
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setSize(app.clientWidth, app.clientHeight);
+        app.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement)
+        controls.minDistance = 10
+        controls.maxDistance = 1000
+
+
+        var aMovingBox = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        scene.add(aMovingBox);
+
+        const stats = new Stats()
+        app.appendChild(stats.dom)
+
+        function animate() {
+            stats.update()
+
+            aMovingBox.rotation.x += 0.01;
+            aMovingBox.rotation.y += 0.01;
+            aMovingBox.position.x += 1
+
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate()
+
+        addEventListener('resize', () => {
+            camera.aspect = app.clientWidth / app.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(app.clientWidth, app.clientHeight);
+        })
+
+
+        var eventKeeper = new EventKeeper(scene, camera, app)
+        var geometry = new THREE.BoxBufferGeometry(20, 20, 20)
+        for (var i = 0; i < 2000; i++) {
+            var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }))
+
+            object.position.x = Math.random() * 2000 - 1000
+            object.position.y = Math.random() * 2000 - 1000
+            object.position.z = Math.random() * 2000 - 1000
+
+            object.rotation.x = Math.random() * 2 * Math.PI
+            object.rotation.y = Math.random() * 2 * Math.PI
+            object.rotation.z = Math.random() * 2 * Math.PI
+
+            object.scale.x = Math.random() + 1.8
+            object.scale.y = Math.random() + 1.8
+            object.scale.z = Math.random() + 1.8
+
+            scene.add(object)
+
+            eventKeeper.addClickEventListener(object, clickHandler)
+            eventKeeper.addClickEventListener(object, (m, ev, e) => { console.log(m); console.log(ev); console.log(e); })
+            eventKeeper.addClickEventListener(object, () => { console.log('第3个处理函数'); })
+
+            eventKeeper.addMouseoverEventListener(object, mouseoverHandler)
+            eventKeeper.addMouseoutEventListener(object, mouseoutHandler)
+        }
+
+        function clickHandler(object) {
+            if (!object.check) {
+                object.check = true
+                if (!object.material.color_back)
+                    object.material.color_back = object.material.color.clone()
+                object.material.color.set(0xff0000)
+            } else {
+                object.check = false
+                object.material.color.set(object.material.color_back)
+            }
+        }
+
+        function mouseoverHandler(object) {
+            if (object.check) return
+            if (!object.material.color_back)
+                object.material.color_back = object.material.color.clone()
+            object.material.color.set(0xffff00)
+        }
+
+        function mouseoutHandler(object) {
+            if (object.check) return
+            object.material.color.set(object.material.color_back)
+        }
+
+    </script>
+</body>
+
+</html>

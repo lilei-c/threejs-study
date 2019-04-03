@@ -120,7 +120,7 @@
 		<div id="panel">
 			<h1>...</h1>
 			<div id="content">
-				<a v-for="(item,index) in list" class="link" :class="{selected:index==selectedItem}"
+				<a v-for="(item,index) in list" class="link" :class="{selected:index==selectedItem}" click="alert(1)"
 					@click="select(index)">{{item}}</a>
 			</div>
 		</div>
@@ -134,6 +134,7 @@
 			data: {
 				list: [
 					'模拟二维 显示文字',
+					'封装鼠标事件 点击 划过',
 				],
 				selectedItem: -1
 				, src: ''

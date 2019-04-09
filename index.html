@@ -36,6 +36,7 @@
 		a {
 			color: #2194CE;
 			text-decoration: none;
+			margin: 6px 0;
 		}
 
 		#panel {
@@ -120,7 +121,7 @@
 		<div id="panel">
 			<h1>...</h1>
 			<div id="content">
-				<a v-for="(item,index) in list" class="link" :class="{selected:index==selectedItem}" click="alert(1)"
+				<a v-for="(item,index) in list" class="link" :class="{selected:index==selectedItem}"
 					@click="select(index)">{{item}}</a>
 			</div>
 		</div>
@@ -135,6 +136,7 @@
 				list: [
 					'模拟二维 显示文字',
 					'封装鼠标事件 点击 划过',
+					'曲线 回旋线',
 				],
 				selectedItem: -1
 				, src: ''

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+
+        #app {
+            /*  font-size: 0; solving the problem that the parent el is 3px higher than the child el */
+            font-size: 0;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+    <script src="three.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+
+    <script>
+
+        var scene = new THREE.Scene()
+        scene.background = new THREE.Color(0xf0f0f0)
+        scene.add(new THREE.AmbientLight(0xf0f0f0))
+        scene.add(new THREE.GridHelper(10000, 200, 0xa5a5a5, 0xdedede))
+        scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
+
+        var camera = new THREE.PerspectiveCamera(75, app.clientWidth / app.clientHeight, 1, 11000);
+        camera.position.set(20, 1000, 1000)
+        camera.lookAt(1000, 1000, 1000)
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setSize(app.clientWidth, app.clientHeight);
+        app.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement)
+        controls.minDistance = 10
+        controls.maxDistance = 10000
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate()
+
+        addEventListener('resize', () => {
+            camera.aspect = app.clientWidth / app.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(app.clientWidth, app.clientHeight);
+        })
+
+
+        let line
+        function drawLine(points) {
+            if (line)
+                scene.remove(line)
+            var geometry = new THREE.Geometry()
+            geometry.vertices = points.map(function (m) {
+                return new THREE.Vector3(m.x, 0, m.y)
+            })
+            line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x000000 }))
+            scene.add(line)
+        }
+
+        function getPoints(LS, A, N = 10000) {
+            var dx, dy, t = 0, prev = { x: 0, y: 0 }, current;
+            var ds = LS / N;
+            var $2C = 2 * A * A
+            var points = []
+            while (N--) {
+                dx = Math.cos(t * t / $2C) * ds;
+                dy = Math.sin(t * t / $2C) * ds;
+                t += ds;
+                current = {
+                    x: prev.x + dx,
+                    y: prev.y + dy
+                };
+                points.push({ x: current.x, y: current.y })
+                prev = current;
+            }
+            console.log(current)
+            return points
+        }
+
+        function drawEulerSpiral(LS, A) {
+            let points = getPoints(LS, A, 10000)
+            drawLine(points)
+        }
+
+        let LS = 3000
+        let A = 500
+        drawEulerSpiral(LS, A)
+
+        initGui()
+        function initGui() {
+            gui = new dat.GUI();
+
+            var param = {
+                '回旋参数': A,
+                '曲线长度': LS,
+            }
+
+            gui.add(param, '回旋参数', 100, 2000).onChange(function (val) {
+                A = val
+                drawEulerSpiral(LS, A)
+            })
+
+            gui.add(param, '曲线长度', 1, 10000).onChange(function (val) {
+                LS = val
+                drawEulerSpiral(LS, A)
+            })
+        }
+
+        /*
+            回旋线
+
+            本示例中的符号定义  --不同文档定义不一样
+
+            回旋参数 A
+            回旋常数 C
+            曲线总长 LS
+            任意一点(x,y) 到起点的弧长 L
+            任意一点(x,y) 的曲率半径 R
+
+            关系
+            C = A * A
+            LR = C
+
+
+            drawEulerSpiral (getPoints) 方法来自 https://en.wikipedia.org/wiki/Euler_spiral
+        */
+    </script>
+</body>
+
+</html>

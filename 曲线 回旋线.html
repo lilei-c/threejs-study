@@ -71,16 +71,16 @@
         })
 
 
-        let line
-        function drawLine(points) {
-            if (line)
-                scene.remove(line)
+        let spiral
+        function drawSpiral(points) {
+            if (spiral)
+                scene.remove(spiral)
             var geometry = new THREE.Geometry()
             geometry.vertices = points.map(function (m) {
                 return new THREE.Vector3(m.x, 0, m.y)
             })
-            line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x000000 }))
-            scene.add(line)
+            spiral = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x000000 }))
+            scene.add(spiral)
         }
 
         function getPoints(LS, A, N = 10000) {
@@ -105,7 +105,7 @@
 
         function drawEulerSpiral(LS, A) {
             let points = getPoints(LS, A, 10000)
-            drawLine(points)
+            drawSpiral(points)
         }
 
         let LS = 3000

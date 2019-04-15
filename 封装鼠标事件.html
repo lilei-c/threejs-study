@@ -89,7 +89,7 @@
 
         var eventKeeper = new EventKeeper(scene, camera, app)
         var geometry = new THREE.BoxBufferGeometry(20, 20, 20)
-        for (var i = 0; i < 2000; i++) {
+        for (var i = 0; i < 500; i++) {
             var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }))
 
             object.position.x = Math.random() * 2000 - 1000

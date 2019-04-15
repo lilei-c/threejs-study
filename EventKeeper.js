@@ -1,3 +1,8 @@
+/**
+ * 封装鼠标事件 
+ *  
+ * 点击 划过
+ */
 class EventKeeper {
     constructor(scene, camera, app) {
         this.events = {

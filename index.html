@@ -36,7 +36,6 @@
 		a {
 			color: #2194CE;
 			text-decoration: none;
-			margin: 6px 0;
 		}
 
 		#panel {
@@ -56,7 +55,6 @@
 			color: #2194CE;
 			text-decoration: none;
 			cursor: pointer;
-			display: block;
 		}
 
 		#panel #content .selected {
@@ -121,8 +119,11 @@
 		<div id="panel">
 			<h1>...</h1>
 			<div id="content">
-				<a v-for="(item,index) in list" class="link" :class="{selected:index==selectedItem}"
-					@click="select(index)">{{item}}</a>
+				<div v-for="(item,index) in list" style="margin: 6px 0;">
+					<a class="link" :class="{selected:index==selectedItem}" @click="select(index)">{{item}}</a>
+					<a class="link" :class="{selected:index==selectedItem}" @click="openInNewWindow(index)"
+						style="float: right;" title="open in a new window">...</a>
+				</div>
 			</div>
 		</div>
 		<iframe id="viewer" allowfullscreen allowvr onmousewheel="" :src="src"></iframe>
@@ -134,9 +135,10 @@
 			el: '#app',
 			data: {
 				list: [
-					'模拟二维 显示文字',
+					'模拟二维',
 					'封装鼠标事件 点击 划过',
 					'曲线 回旋线',
+					'向量与x轴夹角',
 				],
 				selectedItem: -1
 				, src: ''
@@ -149,7 +151,10 @@
 				},
 				getHref: function (index) {
 					return `${this.list[index]}.html?_=${+ new Date()}`
-				}
+				}, openInNewWindow: function (index) {
+					this.select(index)
+					window.open(this.src)
+				},
 			}
 			, mounted: function () {
 				this.selectedItem = localStorage.getItem('selectedItem') || 0

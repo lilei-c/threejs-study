@@ -38,6 +38,8 @@
     <script src="js/controls/OrbitControls.js"></script>
     <script src='js/libs/dat.gui.min.js'></script>
 
+    <script src="CurveLibrary.js"></script>
+
     <script>
 
         var scene = new THREE.Scene()
@@ -83,28 +85,8 @@
             scene.add(spiral)
         }
 
-        function getPoints(LS, A, N = 10000) {
-            var dx, dy, t = 0, prev = { x: 0, y: 0 }, current;
-            var ds = LS / N;
-            var $2C = 2 * A * A
-            var points = []
-            while (N--) {
-                dx = Math.cos(t * t / $2C) * ds;
-                dy = Math.sin(t * t / $2C) * ds;
-                t += ds;
-                current = {
-                    x: prev.x + dx,
-                    y: prev.y + dy
-                };
-                points.push({ x: current.x, y: current.y })
-                prev = current;
-            }
-            console.log(current)
-            return points
-        }
-
         function drawEulerSpiral(LS, A) {
-            let points = getPoints(LS, A, 10000)
+            let points = CurveLibrary.eulerSpiral(LS, A)
             drawSpiral(points)
         }
 
@@ -131,25 +113,6 @@
                 drawEulerSpiral(LS, A)
             })
         }
-
-        /*
-            回旋线
-
-            本示例中的符号定义  --不同文档定义不一样
-
-            回旋参数 A
-            回旋常数 C
-            曲线总长 LS
-            任意一点(x,y) 到起点的弧长 L
-            任意一点(x,y) 的曲率半径 R
-
-            关系
-            C = A * A
-            LR = C
-
-
-            drawEulerSpiral (getPoints) 方法来自 https://en.wikipedia.org/wiki/Euler_spiral
-        */
     </script>
 </body>
 

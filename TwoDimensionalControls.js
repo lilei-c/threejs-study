@@ -16,7 +16,7 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 
 	this.object = object;
 	this.domElement = domElement !== undefined ? domElement : document;
-
+	console.log(this.domElement)
 	this.enabled = true;
 
 	// "target" sets the location of focus, where the object orbits around
@@ -26,12 +26,9 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 	this.minZoom = 0;
 	this.maxZoom = Infinity;
 
-	// Set to true to enable damping (inertia)
-	// If damping is enabled, you must call controls.update() in your animation loop
-	this.enableDamping = false;
-	this.dampingFactor = 0.25; // 平移时, 阻尼系数过小会导致飘忽不定的感觉, 因此在这里加一个平移阻尼系数, 给较大的默认值
-
-	this.dampingFactorOfPanning = 0.75;
+	this.enableDamping = false;	// If damping(inertia) is enabled, you must call controls.update() in your animation loop
+	this.dampingFactor = 0.25;
+	this.dampingFactorOfPanning = 0.75;// 平移时, 阻尼系数过小会导致飘忽不定的感觉, 因此在这里加一个平移阻尼系数, 给较大的默认值
 
 	// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
 	// Set to false to disable zooming
@@ -40,6 +37,8 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 
 	this.enableRotate = true;
 	this.rotateSpeed = 1;
+	this.autoRotate = false; // If auto-rotate is enabled, you must call controls.update() in your animation loop
+	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
 
 	this.enablePan = true;
 	this.panSpeed = 1.0;
@@ -47,14 +46,9 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 
 	this.keyPanSpeed = 7.0; // pixels moved per arrow key push
 
-	// Set to true to automatically rotate around the target
-	// If auto-rotate is enabled, you must call controls.update() in your animation loop
-	this.autoRotate = false;
-	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
-
 	// Set to false to disable use of the keys
-	this.enableKeys = true; // The four arrow keys
-
+	this.enableKeys = true;
+	// The four arrow keys
 	this.keys = {
 		LEFT: 37,
 		UP: 38,
@@ -97,14 +91,24 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 		if (zoom < this.minZoom) console.warn('设定的初始zoom小于minZoom');
 	};
 
+	this.showCompass = function (parentDom, position) {
+		position = position || { right: '10px', top: '10px' }
+		this.compassDomElement = document.createElement('div')
+		this.compassDomElement.style = 'position: absolute;width: 40px;height: 40px;'
+			+ Object.keys(position).map(function (m) { return `${m}:${position[m]};` }).join('')
+			+ 'background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADCElEQVRYR8WXTWgTURDHZ15sJCHSHCxIFYqiCOJNUAqCgoj4gQcPReoHHqQt5BTivqkIuiqEfS+x9WAU25vVQlEQQaEnUbwIihe9KEV7EHvxUoggJN2RLVlZ101280X3lLw3M//fm5l97y3CGj+4xvrQFQCtNTsLY+brRGS6i3THpZR/dbsK4IfoOMDk5GS6Wq0eMwxj1ltKV8gdczPRcQCl1A0AOExEg40A3Ewg4jXnd0dKMDExkahWqz8AIB2LxXbmcrkv/lo7K3dFvYAdAVBK5RCxWAt8S0p5KajZlFKmH6JtANM044lE4hsi9tdEf/b29vaPjo5WnP/+Wvsh2gbQWl8EgGlvWhHxlGEYT4MAnDEvRFsApmmKZDL5FQAGvADM/IKITjS7sTW9D1iWNSSEmPMLMbMdj8e3ZLPZpWYgmgbQWn8EgN11RK5IKfNdA7As64gQYr6eADMvEtHWrgForV8BwIEQgYNSytdRISKXoFgs7rFt+31YYGaeIaLzYXbufGQApdQzRDwZFpiZfwshNhqG8SvM1pmPBKC13gEAn6PaI+KYYRj3OwkwAwBnowSs2byTUu6NYh+agWKxOLCysrKAiOuiBHRt/AdUPd9QAK31HQDINCPu2DLzbSLKhvk1BMjn832xWOw7IsbDAgXsjMvpdLrPPaBayoBSKo+Il5sV99gPSSkfN/Kvm4FSqZQql8tLiJhqA2BeSnm0JQClFCGi1Yb4aiv09PRsbnRABWagduFwat/XJoDTjFeJ6GZTPaCUGkPEe+2K196GRSnlNkRc/VbwP/9loN6Fw+vIzAsAUKqNZRBxe8M6Ix4yDONlJIBCoTDMzI8CXqvfiPgEAKaklG+885Zl7UfEEUQcAoD1AUKzUsozkQACLhyfHFHbth+Mj48vN1qp86FSqVTOAcAYAOxybZ0Dipk3Bfn/UwLLso4LIZ4DgHOSzTHzNBG9baUXCoXCPmYeYebTiJhk5gwR3W3YA0qpKQD4kEqlHmYymXIrwn4fpdQGIcSwbduDRHTBP/8HE5pHMFW+y+sAAAAASUVORK5CYII=);'
+			+ 'background-repeat: no-repeat;'
+		parentDom.appendChild(this.compassDomElement)
+	}
+
 	// this method is exposed, but perhaps it would be better if we can make it private...
 	this.update = function () {
 		var offset = new THREE.Vector3(); // so camera.up is the orbit axis
-
 		var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
 		var quatInverse = quat.clone().inverse();
 		var lastPosition = new THREE.Vector3();
 		var lastQuaternion = new THREE.Quaternion();
+
 		return function update() {
 			var position = scope.object.position;
 			offset.copy(position).sub(scope.target); // rotate offset to "y-axis-is-up" space
@@ -122,7 +126,6 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 			scope.object.rotation.z += rotateAngle;
 
 			if (scope.enableDamping) {
-				console.log(rotateAngle);
 				rotateAngle *= 1 - scope.dampingFactor;
 				panOffset.multiplyScalar(1 - scope.dampingFactorOfPanning);
 			} else {
@@ -130,13 +133,20 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 				panOffset.set(0, 0, 0);
 			}
 
-			scale = 1;
+			// compass
+			if (this.compassDomElement) {
+				compassRotate = `rotate(${scope.object.rotation.z / Math.PI * 180}deg)`
+				this.compassDomElement.style['transform'] = compassRotate
+				this.compassDomElement.style['-ms-transform'] = compassRotate
+				this.compassDomElement.style['-moz-transform'] = compassRotate
+				this.compassDomElement.style['-webkit-transform'] = compassRotate
+				this.compassDomElement.style['-o-transform'] = compassRotate
+			}
 
+			scale = 1;
 			// update condition is:
 			// min(camera displacement, camera rotation in radians)^2 > EPS
 			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-			//scope.object.lookAt(tag);
-			//console.log(scope.object);
 			if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
 				scope.dispatchEvent(changeEvent);
 				lastPosition.copy(scope.object.position);
@@ -144,7 +154,6 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 				zoomChanged = false;
 				return true;
 			}
-
 			return false;
 		};
 	}();

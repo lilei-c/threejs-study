@@ -58,17 +58,18 @@
         scene.add(new THREE.AxesHelper(100))  // xyz -> 红绿蓝
 
         var camera = new THREE.OrthographicCamera(app.clientWidth / - 2, app.clientWidth / 2, app.clientHeight / 2, app.clientHeight / - 2, 0.1, 10000);
-        camera.position.set(0, 0, 100);
 
         var renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setSize(app.clientWidth, app.clientHeight);
         app.appendChild(renderer.domElement);
 
         let controls = new THREE.TwoDimensionalControls(camera, renderer.domElement)
-        controls.object.position.set(0, 0, 100);
+        // 也许? 正交相机下, camera.position 只能设置 xy 坐标, z设置为正即可
+        // 使用 setStartZoom 设置初始大小
+        controls.object.position.set(0, 0, 100)
         controls.maxZoom = 2
         controls.minZoom = 0.1
-        //controls.setStartZoom(0.5)
+        controls.setStartZoom(0.8)
         controls.enableDamping = true
 
 

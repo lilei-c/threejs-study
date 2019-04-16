@@ -11,6 +11,9 @@
  */
 
 THREE.TwoDimensionalControls = function (object, domElement) {
+	if (object.type != 'OrthographicCamera')
+		return console.error('必须使用正交相机 OrthographicCamera');
+
 	this.object = object;
 	this.domElement = domElement !== undefined ? domElement : document;
 
@@ -599,9 +602,6 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 	scope.domElement.addEventListener('touchend', onTouchEnd, false);
 	scope.domElement.addEventListener('touchmove', onTouchMove, false);
 	window.addEventListener('keydown', onKeyDown, false);
-
-	if (scope.object.type != 'OrthographicCamera')
-		console.warn('二维场景下推荐正交相机 OrthographicCamera');
 
 	// force an update at start
 	this.update();

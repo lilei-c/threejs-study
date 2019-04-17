@@ -97,6 +97,15 @@
         }
         animate();
 
+        addEventListener('resize', () => {
+            camera.left = app.clientWidth / - 2
+            camera.right = app.clientWidth / 2
+            camera.top = app.clientHeight / 2
+            camera.bottom = app.clientHeight / - 2
+            camera.updateProjectionMatrix();
+            renderer.setSize(app.clientWidth, app.clientHeight);
+        })
+
     </script>
 </body>
 

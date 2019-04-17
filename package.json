@@ -1,0 +1,24 @@
+{
+  "name": "one-rep",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx babel src --out-dir lib --presets=@babel/env"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-transform-classes": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "babel-plugin-transform-es2015-for-of": "^6.23.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.3",
+    "core-js": "^3.0.1"
+  }
+}

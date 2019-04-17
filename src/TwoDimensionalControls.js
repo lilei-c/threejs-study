@@ -143,7 +143,6 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 				this.compassDomElement.style['-o-transform'] = compassRotate
 			}
 
-			scale = 1;
 			// update condition is:
 			// min(camera displacement, camera rotation in radians)^2 > EPS
 			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
@@ -272,9 +271,7 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 	}();
 
 	function dollyIn(dollyScale) {
-		if (scope.object.isPerspectiveCamera) {
-			scale /= dollyScale;
-		} else if (scope.object.isOrthographicCamera) {
+		if (scope.object.isOrthographicCamera) {
 			scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;
@@ -285,9 +282,7 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 	}
 
 	function dollyOut(dollyScale) {
-		if (scope.object.isPerspectiveCamera) {
-			scale *= dollyScale;
-		} else if (scope.object.isOrthographicCamera) {
+		if (scope.object.isOrthographicCamera) {
 			scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;

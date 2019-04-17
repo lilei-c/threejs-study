@@ -1,9 +1,13 @@
-/**
- * 封装鼠标事件 
- *  
- * 点击 划过
- */
 class EventKeeper {
+    /**
+     * 封装鼠标事件 
+     * 
+     * 点击 划过
+     * 
+     * @param {*} scene 
+     * @param {*} camera 
+     * @param {*} app 
+     */
     constructor(scene, camera, app) {
         this.events = {
             click: {},

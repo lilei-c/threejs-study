@@ -16,7 +16,6 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 
 	this.object = object;
 	this.domElement = domElement !== undefined ? domElement : document;
-	console.log(this.domElement)
 	this.enabled = true;
 
 	// "target" sets the location of focus, where the object orbits around
@@ -135,7 +134,7 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 
 			// compass
 			if (this.compassDomElement) {
-				compassRotate = `rotate(${scope.object.rotation.z / Math.PI * 180}deg)`
+				const compassRotate = `rotate(${scope.object.rotation.z / Math.PI * 180}deg)`
 				this.compassDomElement.style['transform'] = compassRotate
 				this.compassDomElement.style['-ms-transform'] = compassRotate
 				this.compassDomElement.style['-moz-transform'] = compassRotate

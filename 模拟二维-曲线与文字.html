@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+
+        #app {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+        }
+
+        .title {
+            position: absolute;
+            padding: 2px 12px;
+            background-color: #bbbbbb;
+            border-radius: 2px;
+            top: 4px;
+            color: #333333;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+    <script src="three.js"></script>
+
+    <script src="src/TwoDimensionalControls.js"></script>
+    <script src="src/RectanglesAroundCurve.js"></script>
+
+    <script>
+        const scale = .5
+
+        var scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f0f0)
+        var gridHelper = new THREE.GridHelper(100000, 1000, 0xa5a5a5, 0xdedede)
+        gridHelper.rotation.x -= 0.5 * Math.PI
+        scene.add(gridHelper)
+        scene.add(new THREE.AxesHelper(100))  // xyz -> 红绿蓝
+
+        var camera = new THREE.OrthographicCamera(app.clientWidth / - 2, app.clientWidth / 2, app.clientHeight / 2, app.clientHeight / - 2, 0.1, 10000);
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setSize(app.clientWidth, app.clientHeight);
+        app.appendChild(renderer.domElement);
+
+        let controls = new THREE.TwoDimensionalControls(camera, renderer.domElement)
+        controls.object.position.set(0, 0, 100)
+        controls.maxZoom = 2
+        controls.minZoom = 0.1
+        controls.setStartZoom(scale)
+
+        const radius = 600
+        var curve = new THREE.EllipseCurve(
+            0, 0,            // ax, aY
+            radius, radius,           // xRadius, yRadius
+            0, 2 * Math.PI,  // aStartAngle, aEndAngle
+            false,            // aClockwise
+            0                 // aRotation
+        );
+        var points = curve.getPoints(100);
+        var geometry = new THREE.BufferGeometry().setFromPoints(points);
+        var ellipse = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+        scene.add(ellipse);
+
+        const fontSize = 24
+
+        let texts = points.filter(m => Math.random() < 0.5).map(function (m) {
+            return { x: m.x, y: m.y, w: fontSize * 6, h: fontSize * 1.1, text: Math.round(m.x).toString() + ',' + Math.round(m.y).toString() }
+        })
+
+        const rectangles = new RectanglesAroundCurve(texts).get()
+
+        // 显示文字
+        new THREE.FontLoader().load('fonts/helvetiker_bold.typeface.json', function (font) {
+            rectangles.forEach(function (m) {
+                var geometry = new THREE.TextGeometry(m.text, {
+                    font: font,
+                    size: fontSize,
+                    height: 1,
+                    curveSegments: 12,
+                });
+                let cube = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0x708090 }));
+                cube.position.x = m.x
+                cube.position.y = m.y
+                scene.add(cube);
+            })
+        });
+        // 虚线
+        rectangles.forEach(function (m) {
+
+            if (m.originY != m.y || 1) {
+                var geometry = new THREE.Geometry()
+                let start = new THREE.Vector3(m.originX, m.originY, 0)
+                let end = new THREE.Vector3(m.x, m.y, 0)
+
+                if (m.x == m.originX && m.y < m.originY)
+                    end.y += m.h * .75
+                if (Math.abs(m.x - m.originX) > Math.abs(m.y - m.originY))
+                    end.y += m.h / 2
+
+                geometry.vertices = [start, end]
+                var material = new THREE.LineDashedMaterial({ color: 0x708090, scale: 2, dashSize: 10 / scale, gapSize: 10 / scale })
+                line = new THREE.Line(geometry, material)
+                line.computeLineDistances()
+                scene.add(line)
+            }
+        })
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        addEventListener('resize', () => {
+            camera.left = app.clientWidth / - 2
+            camera.right = app.clientWidth / 2
+            camera.top = app.clientHeight / 2
+            camera.bottom = app.clientHeight / - 2
+            camera.updateProjectionMatrix();
+            renderer.setSize(app.clientWidth, app.clientHeight);
+        })
+
+    </script>
+</body>
+
+</html>

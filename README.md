@@ -1,3 +1,3 @@
-# threejs 练习
+# threejs 学习
 
-[href](https://lovelyorg.github.io/threejs-hands-on/ "..."). 
+[查看 href](https://lovelyorg.github.io/threejs-study/ "...")

@@ -93,10 +93,17 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 	this.showCompass = function (parentDom, position) {
 		position = position || { right: '10px', top: '10px' }
 		this.compassDomElement = document.createElement('div')
-		this.compassDomElement.style = 'position: absolute;width: 40px;height: 40px;'
-			+ Object.keys(position).map(function (m) { return `${m}:${position[m]};` }).join('')
-			+ 'background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADCElEQVRYR8WXTWgTURDHZ15sJCHSHCxIFYqiCOJNUAqCgoj4gQcPReoHHqQt5BTivqkIuiqEfS+x9WAU25vVQlEQQaEnUbwIihe9KEV7EHvxUoggJN2RLVlZ101280X3lLw3M//fm5l97y3CGj+4xvrQFQCtNTsLY+brRGS6i3THpZR/dbsK4IfoOMDk5GS6Wq0eMwxj1ltKV8gdczPRcQCl1A0AOExEg40A3Ewg4jXnd0dKMDExkahWqz8AIB2LxXbmcrkv/lo7K3dFvYAdAVBK5RCxWAt8S0p5KajZlFKmH6JtANM044lE4hsi9tdEf/b29vaPjo5WnP/+Wvsh2gbQWl8EgGlvWhHxlGEYT4MAnDEvRFsApmmKZDL5FQAGvADM/IKITjS7sTW9D1iWNSSEmPMLMbMdj8e3ZLPZpWYgmgbQWn8EgN11RK5IKfNdA7As64gQYr6eADMvEtHWrgForV8BwIEQgYNSytdRISKXoFgs7rFt+31YYGaeIaLzYXbufGQApdQzRDwZFpiZfwshNhqG8SvM1pmPBKC13gEAn6PaI+KYYRj3OwkwAwBnowSs2byTUu6NYh+agWKxOLCysrKAiOuiBHRt/AdUPd9QAK31HQDINCPu2DLzbSLKhvk1BMjn832xWOw7IsbDAgXsjMvpdLrPPaBayoBSKo+Il5sV99gPSSkfN/Kvm4FSqZQql8tLiJhqA2BeSnm0JQClFCGi1Yb4aiv09PRsbnRABWagduFwat/XJoDTjFeJ6GZTPaCUGkPEe+2K196GRSnlNkRc/VbwP/9loN6Fw+vIzAsAUKqNZRBxe8M6Ix4yDONlJIBCoTDMzI8CXqvfiPgEAKaklG+885Zl7UfEEUQcAoD1AUKzUsozkQACLhyfHFHbth+Mj48vN1qp86FSqVTOAcAYAOxybZ0Dipk3Bfn/UwLLso4LIZ4DgHOSzTHzNBG9baUXCoXCPmYeYebTiJhk5gwR3W3YA0qpKQD4kEqlHmYymXIrwn4fpdQGIcSwbduDRHTBP/8HE5pHMFW+y+sAAAAASUVORK5CYII=);'
-			+ 'background-repeat: no-repeat;'
+
+		this.compassDomElement.style.position = 'absolute'
+		this.compassDomElement.style.width = '40px'
+		this.compassDomElement.style.height = '40px'
+		this.compassDomElement.style.backgroundRepeat = 'no-repeat'
+		this.compassDomElement.style.backgroundImage = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADCElEQVRYR8WXTWgTURDHZ15sJCHSHCxIFYqiCOJNUAqCgoj4gQcPReoHHqQt5BTivqkIuiqEfS+x9WAU25vVQlEQQaEnUbwIihe9KEV7EHvxUoggJN2RLVlZ101280X3lLw3M//fm5l97y3CGj+4xvrQFQCtNTsLY+brRGS6i3THpZR/dbsK4IfoOMDk5GS6Wq0eMwxj1ltKV8gdczPRcQCl1A0AOExEg40A3Ewg4jXnd0dKMDExkahWqz8AIB2LxXbmcrkv/lo7K3dFvYAdAVBK5RCxWAt8S0p5KajZlFKmH6JtANM044lE4hsi9tdEf/b29vaPjo5WnP/+Wvsh2gbQWl8EgGlvWhHxlGEYT4MAnDEvRFsApmmKZDL5FQAGvADM/IKITjS7sTW9D1iWNSSEmPMLMbMdj8e3ZLPZpWYgmgbQWn8EgN11RK5IKfNdA7As64gQYr6eADMvEtHWrgForV8BwIEQgYNSytdRISKXoFgs7rFt+31YYGaeIaLzYXbufGQApdQzRDwZFpiZfwshNhqG8SvM1pmPBKC13gEAn6PaI+KYYRj3OwkwAwBnowSs2byTUu6NYh+agWKxOLCysrKAiOuiBHRt/AdUPd9QAK31HQDINCPu2DLzbSLKhvk1BMjn832xWOw7IsbDAgXsjMvpdLrPPaBayoBSKo+Il5sV99gPSSkfN/Kvm4FSqZQql8tLiJhqA2BeSnm0JQClFCGi1Yb4aiv09PRsbnRABWagduFwat/XJoDTjFeJ6GZTPaCUGkPEe+2K196GRSnlNkRc/VbwP/9loN6Fw+vIzAsAUKqNZRBxe8M6Ix4yDONlJIBCoTDMzI8CXqvfiPgEAKaklG+885Zl7UfEEUQcAoD1AUKzUsozkQACLhyfHFHbth+Mj48vN1qp86FSqVTOAcAYAOxybZ0Dipk3Bfn/UwLLso4LIZ4DgHOSzTHzNBG9baUXCoXCPmYeYebTiJhk5gwR3W3YA0qpKQD4kEqlHmYymXIrwn4fpdQGIcSwbduDRHTBP/8HE5pHMFW+y+sAAAAASUVORK5CYII=)'
+		if (position.top) this.compassDomElement.style.top = position.top
+		if (position.right) this.compassDomElement.style.right = position.right
+		if (position.bottom) this.compassDomElement.style.bottom = position.bottom
+		if (position.left) this.compassDomElement.style.left = position.left
+
 		parentDom.appendChild(this.compassDomElement)
 	}
 
@@ -135,11 +142,11 @@ THREE.TwoDimensionalControls = function (object, domElement) {
 			// compass
 			if (this.compassDomElement) {
 				const compassRotate = `rotate(${scope.object.rotation.z / Math.PI * 180}deg)`
-				this.compassDomElement.style['transform'] = compassRotate
-				this.compassDomElement.style['-ms-transform'] = compassRotate
-				this.compassDomElement.style['-moz-transform'] = compassRotate
-				this.compassDomElement.style['-webkit-transform'] = compassRotate
-				this.compassDomElement.style['-o-transform'] = compassRotate
+				this.compassDomElement.style.transform = compassRotate
+				this.compassDomElement.style.msTransform = compassRotate
+				this.compassDomElement.style.mozTransform = compassRotate
+				this.compassDomElement.style.webkitTransform = compassRotate
+				this.compassDomElement.style.oTransform = compassRotate
 			}
 
 			// update condition is:

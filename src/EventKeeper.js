@@ -52,13 +52,12 @@ class EventKeeper {
         };
     }
 
-    addEventListener = function (type, object, fn) {
+    addEventListener(type, object, fn) {
         if (!this.events[type][object.uuid]) this.events[type][object.uuid] = []
         this.events[type][object.uuid].push(fn);
     }
-
     addClickEventListener(object, fn) {
-        this.addEventListener('click', object, fn)
+        this.addEventListener('click', object, fn);
     }
     addMouseoverEventListener(object, fn) {
         this.addEventListener('mouseover', object, fn)

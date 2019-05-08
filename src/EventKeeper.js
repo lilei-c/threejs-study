@@ -45,8 +45,8 @@ class EventKeeper {
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
         function getIntersects(e) {
-            mouse.x = (e.clientX / (app ? app.clientWidth : window.innerWidth)) * 2 - 1;
-            mouse.y = -(e.clientY / (app ? app.clientHeight : window.innerHeight)) * 2 + 1;
+            mouse.x = ((e.clientX - app.getBoundingClientRect().left) / (app ? app.clientWidth : window.innerWidth)) * 2 - 1;
+            mouse.y = -((e.clientY - app.getBoundingClientRect().top) / (app ? app.clientHeight : window.innerHeight)) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
             return raycaster.intersectObjects(scene.children);
         };

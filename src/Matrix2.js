@@ -49,7 +49,7 @@ class Matrix2 {
         if (val instanceof Array)
             return val
         else if (val instanceof Matrix2)
-            return val.matrix
+            return val.array
     }
 }
 // ;;

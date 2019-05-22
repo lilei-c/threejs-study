@@ -50,8 +50,7 @@
         scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
 
         var camera = new THREE.PerspectiveCamera(75, app.clientWidth / app.clientHeight, 1, 2000);
-        camera.position.set(20, 120, 280)
-        camera.lookAt(0, 0, 0)
+        camera.position.set(200, 120, 500)
 
         var renderer = new THREE.WebGLRenderer({ antialias: true })
         renderer.setSize(app.clientWidth, app.clientHeight);
@@ -60,6 +59,11 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement)
         controls.minDistance = 10
         controls.maxDistance = 1000
+
+        // 添加控制器后, 单独设置 camera.lookAt() 不起作用, 需要 camera.lookAt controls.target.set 设置为同一个值
+        // 或者只设置 controls.target.set() , 然后调用 controls.update()
+        controls.target.set(200, 0, 0)
+        controls.update()
 
 
         var aMovingBox = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));

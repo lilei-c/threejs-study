@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+
+        #app {
+            /*  font-size: 0; solving the problem that the parent el is 3px higher than the child el */
+            font-size: 0;
+            height: 90%;
+            width: 90%;
+            position: fixed;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+    <script src="three.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+
+
+    <script>
+
+        var scene = new THREE.Scene()
+        scene.background = new THREE.Color(0x222222)
+
+        scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
+
+        var camera = new THREE.PerspectiveCamera(75, app.clientWidth / app.clientHeight, 1, 2000);
+        camera.position.set(20, 20, 100)
+
+        scene.add(new THREE.AmbientLight(0x222222));
+        var light = new THREE.PointLight(0xffffff);
+        light.position.copy(camera.position);
+        scene.add(light);
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setSize(app.clientWidth, app.clientHeight);
+        app.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement)
+        controls.minDistance = 10
+        controls.maxDistance = 1000
+
+        // 添加控制器后, 单独设置 camera.lookAt() 不起作用, 需要 camera.lookAt controls.target.set 设置为同一个值
+        // 或者只设置 controls.target.set() , 然后调用 controls.update()
+        controls.target.set(0, 0, 0)
+        controls.update()
+
+
+        var aMovingBox = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        scene.add(aMovingBox);
+
+        const stats = new Stats()
+        app.appendChild(stats.dom)
+
+        function animate() {
+            stats.update()
+
+            aMovingBox.rotation.x += 0.01;
+            aMovingBox.rotation.y += 0.01;
+
+            aMovingBox.position.x += .1
+
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate()
+
+        addEventListener('resize', () => {
+            camera.aspect = app.clientWidth / app.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(app.clientWidth, app.clientHeight);
+        })
+
+
+
+        var extrudeSettings = {
+            steps: 100,
+            bevelEnabled: false,
+            extrudePath: new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -50), new THREE.Vector3(50, 0, -200)])
+        };
+
+
+        var points = [{ "x": -4.447, "y": -1.2 }, { "x": -4.5, "y": -0.979 }, { "x": -4.552, "y": -0.758 }, { "x": -4.605, "y": -0.537 }, { "x": -4.657, "y": -0.316 }, { "x": -4.71, "y": -0.095 }, { "x": -4.762, "y": 0.127 }, { "x": -4.815, "y": 0.348 }, { "x": -4.867, "y": 0.569 }, { "x": -4.909, "y": 0.746 }, { "x": -4.956, "y": 0.968 }, { "x": -4.996, "y": 1.192 }, { "x": -5.03, "y": 1.416 }, { "x": -5.057, "y": 1.642 }, { "x": -5.077, "y": 1.868 }, { "x": -5.091, "y": 2.095 }, { "x": -5.097, "y": 2.322 }, { "x": -5.097, "y": 2.549 }, { "x": -5.09, "y": 2.777 }, { "x": -5.076, "y": 3.003 }, { "x": -5.056, "y": 3.23 }, { "x": -5.029, "y": 3.455 }, { "x": -4.994, "y": 3.68 }, { "x": -4.954, "y": 3.904 }, { "x": -4.906, "y": 4.126 }, { "x": -4.852, "y": 4.346 }, { "x": -4.792, "y": 4.566 }, { "x": -4.725, "y": 4.783 }, { "x": -4.651, "y": 4.998 }, { "x": -4.571, "y": 5.21 }, { "x": -4.485, "y": 5.421 }, { "x": -4.392, "y": 5.628 }, { "x": -4.294, "y": 5.833 }, { "x": -4.189, "y": 6.034 }, { "x": -4.078, "y": 6.233 }, { "x": -3.962, "y": 6.428 }, { "x": -3.839, "y": 6.619 }, { "x": -3.711, "y": 6.807 }, { "x": -3.577, "y": 6.991 }, { "x": -3.438, "y": 7.17 }, { "x": -3.294, "y": 7.346 }, { "x": -3.144, "y": 7.517 }, { "x": -2.99, "y": 7.684 }, { "x": -2.83, "y": 7.845 }, { "x": -2.666, "y": 8.002 }, { "x": -2.497, "y": 8.154 }, { "x": -2.324, "y": 8.301 }, { "x": -2.146, "y": 8.443 }, { "x": -1.964, "y": 8.579 }, { "x": -1.778, "y": 8.71 }, { "x": -1.589, "y": 8.835 }, { "x": -1.395, "y": 8.955 }, { "x": -1.199, "y": 9.068 }, { "x": -0.999, "y": 9.176 }, { "x": -0.795, "y": 9.277 }, { "x": -0.589, "y": 9.373 }, { "x": -0.38, "y": 9.462 }, { "x": -0.169, "y": 9.545 }, { "x": 0.045, "y": 9.622 }, { "x": 0.261, "y": 9.692 }, { "x": 0.479, "y": 9.756 }, { "x": 0.699, "y": 9.813 }, { "x": 0.921, "y": 9.864 }, { "x": 1.144, "y": 9.908 }, { "x": 1.368, "y": 9.945 }, { "x": 1.593, "y": 9.975 }, { "x": 1.819, "y": 9.999 }, { "x": 2.046, "y": 10.016 }, { "x": 2.273, "y": 10.027 }, { "x": 2.5, "y": 10.03 }, { "x": 2.553, "y": 10.03 }, { "x": 2.78, "y": 10.025 }, { "x": 3.007, "y": 10.013 }, { "x": 3.233, "y": 9.995 }, { "x": 3.459, "y": 9.969 }, { "x": 3.684, "y": 9.937 }, { "x": 3.908, "y": 9.899 }, { "x": 4.131, "y": 9.853 }, { "x": 4.352, "y": 9.801 }, { "x": 4.572, "y": 9.743 }, { "x": 4.789, "y": 9.678 }, { "x": 5.005, "y": 9.606 }, { "x": 5.218, "y": 9.528 }, { "x": 5.429, "y": 9.444 }, { "x": 5.638, "y": 9.353 }, { "x": 5.843, "y": 9.256 }, { "x": 6.046, "y": 9.153 }, { "x": 6.245, "y": 9.044 }, { "x": 6.441, "y": 8.929 }, { "x": 6.634, "y": 8.809 }, { "x": 6.823, "y": 8.682 }, { "x": 7.008, "y": 8.55 }, { "x": 7.189, "y": 8.413 }, { "x": 7.365, "y": 8.27 }, { "x": 7.538, "y": 8.122 }, { "x": 7.706, "y": 7.969 }, { "x": 7.869, "y": 7.811 }, { "x": 8.028, "y": 7.648 }, { "x": 8.181, "y": 7.481 }, { "x": 8.329, "y": 7.309 }, { "x": 8.473, "y": 7.132 }, { "x": 8.611, "y": 6.952 }, { "x": 8.743, "y": 6.767 }, { "x": 8.87, "y": 6.578 }, { "x": 8.991, "y": 6.386 }, { "x": 9.106, "y": 6.19 }, { "x": 9.216, "y": 5.991 }, { "x": 9.319, "y": 5.789 }, { "x": 9.417, "y": 5.584 }, { "x": 9.508, "y": 5.375 }, { "x": 9.593, "y": 5.165 }, { "x": 9.672, "y": 4.952 }, { "x": 9.744, "y": 4.736 }, { "x": 9.809, "y": 4.519 }, { "x": 9.869, "y": 4.299 }, { "x": 9.921, "y": 4.078 }, { "x": 9.967, "y": 3.856 }, { "x": 10.006, "y": 3.632 }, { "x": 10.039, "y": 3.407 }, { "x": 10.065, "y": 3.181 }, { "x": 10.084, "y": 2.955 }, { "x": 10.096, "y": 2.728 }, { "x": 10.102, "y": 2.501 }, { "x": 10.1, "y": 2.273 }, { "x": 10.092, "y": 2.046 }, { "x": 10.077, "y": 1.82 }, { "x": 10.056, "y": 1.593 }, { "x": 10.027, "y": 1.368 }, { "x": 9.992, "y": 1.143 }, { "x": 9.95, "y": 0.92 }, { "x": 9.902, "y": 0.698 }, { "x": 9.902, "y": 0.698 }, { "x": 9.838, "y": 0.48 }, { "x": 9.774, "y": 0.262 }, { "x": 9.71, "y": 0.044 }, { "x": 9.646, "y": -0.174 }, { "x": 9.582, "y": -0.392 }, { "x": 9.518, "y": -0.61 }, { "x": 9.454, "y": -0.828 }, { "x": 9.39, "y": -1.046 }, { "x": 9.355, "y": -1.165 }, { "x": 9.128, "y": -1.165 }, { "x": 8.901, "y": -1.165 }, { "x": 8.673, "y": -1.165 }, { "x": 8.446, "y": -1.165 }, { "x": 8.3, "y": -1.201 }, { "x": 8.113, "y": -1.329 }, { "x": 7.916, "y": -1.442 }, { "x": 7.711, "y": -1.541 }, { "x": 7.5, "y": -1.624 }, { "x": 7.283, "y": -1.692 }, { "x": 7.123, "y": -1.736 }, { "x": 6.904, "y": -1.793 }, { "x": 6.683, "y": -1.848 }, { "x": 6.462, "y": -1.9 }, { "x": 6.24, "y": -1.949 }, { "x": 6.017, "y": -1.995 }, { "x": 5.794, "y": -2.038 }, { "x": 5.571, "y": -2.079 }, { "x": 5.347, "y": -2.117 }, { "x": 5.122, "y": -2.151 }, { "x": 4.897, "y": -2.183 }, { "x": 4.672, "y": -2.213 }, { "x": 4.446, "y": -2.239 }, { "x": 4.22, "y": -2.262 }, { "x": 3.994, "y": -2.283 }, { "x": 3.767, "y": -2.301 }, { "x": 3.54, "y": -2.315 }, { "x": 3.313, "y": -2.327 }, { "x": 3.086, "y": -2.336 }, { "x": 2.859, "y": -2.342 }, { "x": 2.632, "y": -2.346 }, { "x": 2.405, "y": -2.346 }, { "x": 2.178, "y": -2.344 }, { "x": 1.95, "y": -2.338 }, { "x": 1.723, "y": -2.33 }, { "x": 1.496, "y": -2.319 }, { "x": 1.269, "y": -2.305 }, { "x": 1.043, "y": -2.288 }, { "x": 0.817, "y": -2.268 }, { "x": 0.59, "y": -2.246 }, { "x": 0.365, "y": -2.22 }, { "x": 0.139, "y": -2.192 }, { "x": -0.086, "y": -2.16 }, { "x": -0.311, "y": -2.126 }, { "x": -0.535, "y": -2.089 }, { "x": -0.759, "y": -2.05 }, { "x": -0.982, "y": -2.007 }, { "x": -1.204, "y": -1.961 }, { "x": -1.426, "y": -1.913 }, { "x": -1.648, "y": -1.862 }, { "x": -1.869, "y": -1.808 }, { "x": -2.089, "y": -1.751 }, { "x": -2.308, "y": -1.692 }, { "x": -2.343, "y": -1.682 }, { "x": -2.558, "y": -1.609 }, { "x": -2.768, "y": -1.52 }, { "x": -2.97, "y": -1.416 }, { "x": -3.163, "y": -1.298 }, { "x": -3.348, "y": -1.165 }, { "x": -3.348, "y": -1.165 }, { "x": -3.575, "y": -1.172 }, { "x": -3.802, "y": -1.179 }, { "x": -4.029, "y": -1.187 }, { "x": -4.257, "y": -1.194 }]
+
+
+        var pts = points.map(m => { return new THREE.Vector2(-m.y * 2, -m.x * 2) })
+
+        var shape = new THREE.Shape(pts);
+
+        var holePath = new THREE.Path();
+        holePath.moveTo(-points[0].y * 1.98, -points[0].x * 1.98)
+        points.forEach(m => {
+            return holePath.lineTo(-m.y * 1.98, -m.x * 1.98)
+        })
+        console.log(holePath)
+        shape.holes.push(holePath)
+
+        var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+        var material2 = new THREE.MeshLambertMaterial({ color: 0x00ff00, wireframe: false });
+        var mesh = new THREE.Mesh(geometry, material2);
+
+        console.log(mesh)
+        scene.add(mesh);
+    </script>
+</body>
+
+</html>

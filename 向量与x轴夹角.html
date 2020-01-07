@@ -1,184 +1,193 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset=utf-8>
+  <head>
+    <meta charset="utf-8" />
     <style>
-        html {
-            height: 100%;
-        }
+      html {
+        height: 100%;
+      }
 
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
 
-        canvas {
-            width: 100%;
-            height: 100%
-        }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
 
-        #app {
-            /*  font-size: 0; solving the problem that the parent el is 3px higher than the child el */
-            font-size: 0;
-            height: 100%;
-            width: 100%;
-            position: fixed;
-        }
+      #app {
+        /*  font-size: 0; solving the problem that the parent el is 3px higher than the child el */
+        font-size: 0;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div id="app">
-    </div>
+  <body>
+    <div id="app"></div>
 
     <script src="three.js"></script>
     <script src="js/controls/OrbitControls.js"></script>
-    <script src='js/libs/dat.gui.min.js'></script>
+    <script src="js/libs/dat.gui.min.js"></script>
 
     <script src="src/CurveLibrary.js"></script>
 
     <script>
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf0f0f0);
+      scene.add(new THREE.AmbientLight(0xf0f0f0));
+      let gridHelper = new THREE.GridHelper(10000, 200, 0xa5a5a5, 0xdedede);
+      gridHelper.rotation.x += Math.PI / 2;
+      scene.add(gridHelper);
+      scene.add(new THREE.AxesHelper(600)); // xyz -> 红绿蓝
 
-        var scene = new THREE.Scene()
-        scene.background = new THREE.Color(0xf0f0f0)
-        scene.add(new THREE.AmbientLight(0xf0f0f0))
-        let gridHelper = new THREE.GridHelper(10000, 200, 0xa5a5a5, 0xdedede)
-        gridHelper.rotation.x += Math.PI / 2
-        scene.add(gridHelper)
-        scene.add(new THREE.AxesHelper(600))  // xyz -> 红绿蓝
+      var camera = new THREE.PerspectiveCamera(
+        75,
+        app.clientWidth / app.clientHeight,
+        1,
+        11000
+      );
+      camera.position.set(0, 0, 1000);
+      camera.lookAt(0, 0, 0);
 
-        var camera = new THREE.PerspectiveCamera(75, app.clientWidth / app.clientHeight, 1, 11000);
-        camera.position.set(0, 0, 1000)
-        camera.lookAt(0, 0, 0)
+      var renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(app.clientWidth, app.clientHeight);
+      app.appendChild(renderer.domElement);
 
-        var renderer = new THREE.WebGLRenderer({ antialias: true })
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.minDistance = 10;
+      controls.maxDistance = 10000;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      addEventListener("resize", () => {
+        camera.aspect = app.clientWidth / app.clientHeight;
+        camera.updateProjectionMatrix();
         renderer.setSize(app.clientWidth, app.clientHeight);
-        app.appendChild(renderer.domElement);
+      });
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement)
-        controls.minDistance = 10
-        controls.maxDistance = 10000
+      let spiral;
+      function drawSpiral(points) {
+        if (spiral) scene.remove(spiral);
+        var geometry = new THREE.Geometry();
+        geometry.vertices = points.map(function(m) {
+          return new THREE.Vector3(m.x, m.y, 0);
+        });
+        spiral = new THREE.Line(
+          geometry,
+          new THREE.LineBasicMaterial({ color: 0x000000 })
+        );
+        scene.add(spiral);
+      }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
+      drawEulerSpiral(500, 400);
+      function drawEulerSpiral(LS, A) {
+        let points = CurveLibrary.eulerSpiral(LS, A);
+        drawSpiral(points);
+      }
+
+      let lineX = 200;
+      let lineY = 200;
+      let line;
+      let spiralClone;
+      function drawLineThenJoinToSpiral() {
+        if (line) scene.remove(line);
+        var geometry = new THREE.Geometry();
+        geometry.vertices = [
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(lineX, lineY, 0)
+        ];
+        line = new THREE.Line(
+          geometry,
+          new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+        scene.add(line);
+
+        if (!spiral) return;
+        if (spiralClone) scene.remove(spiralClone);
+
+        spiralClone = new THREE.Line(
+          spiral.geometry.clone(),
+          new THREE.LineBasicMaterial({ color: 0x0000ff })
+        );
+        spiralClone.position.x += lineX;
+        spiralClone.position.y += lineY;
+        //
+        console.log(new THREE.Vector2(lineX, lineY).angle());
+        spiralClone.rotation.z += new THREE.Vector2(lineX, lineY).angle();
+
+        scene.add(spiralClone);
+
+        console.log(spiral);
+        console.log(spiralClone);
+      }
+      drawLineThenJoinToSpiral();
+
+      initGui();
+      function initGui() {
+        gui = new dat.GUI();
+
+        var param = {
+          X: lineX,
+          Y: lineY
+        };
+
+        gui.add(param, "X", -400, 400).onChange(function(val) {
+          lineX = val;
+          drawLineThenJoinToSpiral();
+        });
+
+        gui.add(param, "Y", -400, 400).onChange(function(val) {
+          lineY = val;
+          drawLineThenJoinToSpiral();
+        });
+      }
+
+      // 二维坐标系
+      // a到b点的射线 与 x轴 的夹角
+      // 从x轴正方向逆时针算起
+
+      /**
+       * 二维坐标系
+       * a到b点的射线与x轴的夹角, 从x轴正方向逆时针算起
+       *
+       * 其实 Threejs 已经实现了, THREE.Vector2(x,y).angle()
+       * 这里保留一下, 帮助理解角度问题
+       */
+      function getAngle(aX, aY, bX, bY) {
+        x = bX - aX;
+        y = bY - aY;
+
+        //
+        if (x == 0 && y == 0) return 0;
+        // 点落在坐标轴上
+        if (x == 0) {
+          if (y > 0) return Math.PI / 2;
+          return Math.PI * 1.5;
         }
-        animate()
-
-        addEventListener('resize', () => {
-            camera.aspect = app.clientWidth / app.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(app.clientWidth, app.clientHeight);
-        })
-
-
-        let spiral
-        function drawSpiral(points) {
-            if (spiral)
-                scene.remove(spiral)
-            var geometry = new THREE.Geometry()
-            geometry.vertices = points.map(function (m) {
-                return new THREE.Vector3(m.x, m.y, 0)
-            })
-            spiral = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x000000 }))
-            scene.add(spiral)
+        if (y == 0) {
+          if (x > 0) return 0;
+          return Math.PI;
         }
-
-        drawEulerSpiral(500, 400)
-        function drawEulerSpiral(LS, A) {
-            let points = CurveLibrary.eulerSpiral(LS, A)
-            drawSpiral(points)
+        // 点落在象限内
+        if (x > 0) {
+          if (y > 0) return Math.atan(y / x);
+          return Math.PI * 2 - Math.atan(-y / x);
+        } else {
+          if (y > 0) return Math.PI - Math.atan(y / -x);
+          return Math.PI + Math.atan(y / x);
         }
-
-        let lineX = 200
-        let lineY = 200
-        let line
-        let spiralClone
-        function drawLineThenJoinToSpiral() {
-            if (line)
-                scene.remove(line)
-            var geometry = new THREE.Geometry()
-            geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(lineX, lineY, 0)]
-            line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xff0000 }))
-            scene.add(line)
-
-            if (!spiral) return
-            if (spiralClone)
-                scene.remove(spiralClone)
-
-            spiralClone = new THREE.Line(spiral.geometry.clone(), new THREE.LineBasicMaterial({ color: 0x0000ff }))
-            spiralClone.position.x += lineX
-            spiralClone.position.y += lineY
-            //
-            console.log(new THREE.Vector2(lineX, lineY).angle())
-            spiralClone.rotation.z += new THREE.Vector2(lineX, lineY).angle()
-
-            scene.add(spiralClone)
-
-            console.log(spiral)
-            console.log(spiralClone)
-        }
-        drawLineThenJoinToSpiral()
-
-        initGui()
-        function initGui() {
-            gui = new dat.GUI();
-
-            var param = {
-                'X': lineX,
-                'Y': lineY,
-            }
-
-            gui.add(param, 'X', -400, 400).onChange(function (val) {
-                lineX = val
-                drawLineThenJoinToSpiral()
-            })
-
-            gui.add(param, 'Y', -400, 400).onChange(function (val) {
-                lineY = val
-                drawLineThenJoinToSpiral()
-            })
-        }
-
-        // 二维坐标系
-        // a到b点的射线 与 x轴 的夹角
-        // 从x轴正方向逆时针算起
-
-        /**
-         * 二维坐标系
-         * a到b点的射线与x轴的夹角, 从x轴正方向逆时针算起
-         * 
-         * 其实 Threejs 已经实现了, THREE.Vector2(x,y).angle()
-         * 这里保留一下, 帮助理解角度问题
-        */
-        function getAngle(aX, aY, bX = 0, bY = 0) {
-            x = aX - bX
-            y = aY - bY
-
-            // 点落在坐标轴上
-            if (x == 0) {
-                if (y > 0) return Math.PI
-                return Math.PI * 1.5
-            }
-            if (y == 0) {
-                if (x > 0) return 0
-                return Math.PI
-            }
-
-            // 点落在象限内
-            if (x > 0) {
-                if (y > 0) return Math.atan(y / x)
-                return Math.PI * 2 - Math.atan(-y / x)
-            } else {
-                if (y > 0) return Math.PI - Math.atan(y / -x)
-                return Math.PI + Math.atan(y / x)
-            }
-        }
-
+      }
     </script>
-</body>
-
+  </body>
 </html>

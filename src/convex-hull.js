@@ -28,7 +28,7 @@ function getConvexHull(_points) {
   let temp = [points[0]];
   for (let i = 1; i < points.length; i++) {
     if (
-      points[i].x !== temp[temp.length - 1].x &&
+      points[i].x !== temp[temp.length - 1].x ||
       points[i].y !== temp[temp.length - 1].y
     )
       temp.push(points[i]);
@@ -47,8 +47,8 @@ function getConvexHull(_points) {
     if (
       Math.pow(points[i].x - points[0].x, 2) +
         Math.pow(points[i].y - points[0].y, 2) >
-      Math.pow(tempTail[i].x - points[0].x, 2) +
-        Math.pow(tempTail[i].y - points[0].y, 2)
+      Math.pow(tempTail.x - points[0].x, 2) +
+        Math.pow(tempTail.y - points[0].y, 2)
     ) {
       temp.pop();
       temp.push(points[i]);
@@ -56,14 +56,16 @@ function getConvexHull(_points) {
   }
   points = temp;
 
+  console.log(points);
+
   // 小于4个点不用找
   if (points.length <= 3) return points;
 
   // 以上为准备工作, 下面求凸包
-  hull = [points[0], points[1]];
+  let hull = [points[0], points[1]];
 
   //
-  for (let i = 2; i < points.length - 1; i++) {
+  for (let i = 2; i < points.length; i++) {
     let curPoints = points[i]; // 即将入栈的点(当前点)
     popAndPush(hull, curPoints);
   }
@@ -78,9 +80,21 @@ function getConvexHull(_points) {
     // 情况2.如果当前点在A右侧, 则当前点入栈, 同时栈顶的点出栈; (此时应该继续判断, 直到栈顶的点不用出栈)
     // 情况3.共线, 当前点距离远等同于当前点在A右侧, 反之左侧
     let turnLeft = isTurnLeft(hullSecondTail, hullTail, curPoints);
+    console.log(turnLeft, curPoints);
     if (turnLeft > 0) {
       hull.push(curPoints);
     } else if (turnLeft == 0) {
+      if (
+        Math.pow(hullSecondTail.x - curPoints.x, 2) +
+          Math.pow(hullSecondTail.y - curPoints.y, 2) >
+        Math.pow(hullSecondTail.x - hullTail.x, 2) +
+          Math.pow(hullSecondTail.y - hullTail.y, 2)
+      ) {
+        hull.pop();
+        popAndPush(hull, curPoints);
+      } else {
+        hull.push(curPoints);
+      }
     } else {
       hull.pop();
       popAndPush(hull, curPoints);
@@ -88,7 +102,7 @@ function getConvexHull(_points) {
   }
 
   // 最后一个点必是凸包上的点
-  hull.push(points[points.length - 1]);
+  // hull.push(points[points.length - 1]);
 
   return hull;
 
@@ -101,37 +115,37 @@ function getConvexHull(_points) {
   function isTurnLeft(p1, p2, p3) {
     return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
   }
+}
 
-  /**
-   * a到b点的射线与x轴的夹角, 从x轴正方向逆时针算起
-   * @param {*} aX
-   * @param {*} aY
-   * @param {*} bX
-   * @param {*} bY
-   */
-  function getAngle(aX, aY, bX, bY) {
-    x = bX - aX;
-    y = bY - aY;
+/**
+ * a到b点的射线与x轴的夹角, 从x轴正方向逆时针算起
+ * @param {*} aX
+ * @param {*} aY
+ * @param {*} bX
+ * @param {*} bY
+ */
+function getAngle(aX, aY, bX, bY) {
+  x = bX - aX;
+  y = bY - aY;
 
-    //
-    if (x == 0 && y == 0) return 0;
-    // 点落在坐标轴上
-    if (x == 0) {
-      if (y > 0) return Math.PI;
-      return Math.PI * 1.5;
-    }
-    if (y == 0) {
-      if (x > 0) return 0;
-      return Math.PI;
-    }
-    // 点落在象限内
-    if (x > 0) {
-      if (y > 0) return Math.atan(y / x);
-      return Math.PI * 2 - Math.atan(-y / x);
-    } else {
-      if (y > 0) return Math.PI - Math.atan(y / -x);
-      return Math.PI + Math.atan(y / x);
-    }
+  //
+  if (x == 0 && y == 0) return 0;
+  // 点落在坐标轴上
+  if (x == 0) {
+    if (y > 0) return Math.PI / 2;
+    return Math.PI * 1.5;
+  }
+  if (y == 0) {
+    if (x > 0) return 0;
+    return Math.PI;
+  }
+  // 点落在象限内
+  if (x > 0) {
+    if (y > 0) return Math.atan(y / x);
+    return Math.PI * 2 - Math.atan(-y / x);
+  } else {
+    if (y > 0) return Math.PI - Math.atan(y / -x);
+    return Math.PI + Math.atan(y / x);
   }
 }
 

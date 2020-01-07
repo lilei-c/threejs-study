@@ -141,7 +141,9 @@
 					'曲线-回旋线',
 					'向量与x轴夹角',
 					'Shape',
-					'彩色的Tube'
+					'彩色的Tube',
+					'骨骼',
+					'求凸包'
 				],
 				selectedItem: -1
 				, src: ''
@@ -154,7 +156,8 @@
 				},
 				getHref: function (index) {
 					return `${this.list[index]}.html?_=${+ new Date()}`
-				}, openInNewWindow: function (index) {
+				},
+			    openInNewWindow: function (index) {
 					this.select(index)
 					window.open(this.src)
 				},

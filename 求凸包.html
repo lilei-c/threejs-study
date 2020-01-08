@@ -65,10 +65,10 @@
       );
       // 也许? 正交相机下, camera.position 只能设置 xy 坐标, z设置为正即可
       // 使用 setStartZoom 设置初始大小
-      controls.object.position.set(0, 0, 100);
+      controls.object.position.set(800, 0, 100);
       controls.maxZoom = 2;
       controls.minZoom = 0.1;
-      controls.setStartZoom(0.8);
+      controls.setStartZoom(0.4);
       controls.enableDamping = true;
       controls.showCompass(app);
 
@@ -120,14 +120,15 @@
           m.y = m.tempY;
         });
         //console.log(angle, points);
-        let particles = draw(points);
+        let particles = draw(points, 0x888888, 3, 700);
         setTimeout(() => {
           scene.remove(particles);
           roll(hull, points, ++index);
         }, 200);
       }
 
-      // 求凸包内所有点, (凸包沿x轴滚动一周, 每次舍去y小于0的点, 剩下的点就是凸包内的点)
+      // 求凸包内所有点
+      // (凸包沿x轴滚动一周, 每次舍去y小于0的点, 剩下的点就是凸包内的点)
       // 模拟一个矩形, 包含凸包
       let points1000 = [];
       for (let i = -100; i < 400; i++)
@@ -139,7 +140,7 @@
 
       let innerPoints = getInnerPoints(convexHullPoints, points1000, 0, 0);
       console.log(innerPoints);
-      draw(innerPoints, 0x808080, 1, 400);
+      draw(innerPoints, 0x808080, 1, 1500);
 
       /**
        * offset 外边框, 用负值
@@ -168,6 +169,52 @@
           // m.y = m.tempY;
         });
         return getInnerPoints(hull, points, ++index, offset);
+      }
+
+      // 演示
+      points1000 = [];
+      for (let i = -100; i < 400; i++)
+        for (let j = -100; j < 400; j++) points1000.push({ x: j, y: i }); // 从左往右, 从下往上, 一层层铺
+      points1000.forEach(m => {
+        m.originx = m.x;
+        m.originy = m.y;
+      });
+      let testPoints1000;
+      getInnerPointsTest(convexHullPoints, points1000, 0, 0);
+      // 演示
+      async function getInnerPointsTest(hull, points, index = 0, offset = 0) {
+        if (index > hull.length - 1)
+          return points
+            .filter(m => !m.delTag)
+            .map(m => {
+              return { x: m.originx, y: m.originy };
+            });
+        //
+        let p1 = hull[index];
+        let p2 = hull[index + 1] || hull[0];
+        let angle = getAngle(p1.x, p1.y, p2.x, p2.y);
+        // 移动整个图形使p1移动到0,0 ,然后旋转一定角度, 使p1->p2与x轴重合
+        points.forEach(m => {
+          m.x = m.originx - p1.x;
+          m.y = m.originy - p1.y;
+        });
+        points.forEach(m => {
+          m.tempX = m.x * Math.cos(angle) + m.y * Math.sin(angle);
+          m.tempY = m.y * Math.cos(angle) - m.x * Math.sin(angle);
+          if (m.tempY < offset) m.delTag = true;
+          m.x = m.tempX;
+          m.y = m.tempY;
+        });
+        await timeout(200);
+        if (testPoints1000) scene.remove(testPoints1000);
+        testPoints1000 = draw(
+          points.filter(m => !m.delTag),
+          0x808080,
+          1,
+          1100
+        );
+
+        return getInnerPointsTest(hull, points, ++index, offset);
       }
 
       function draw(points, color = 0x888888, size = 3, offsetX) {
@@ -201,6 +248,14 @@
         scene.add(particles);
         if (offsetX) particles.position.x += offsetX;
         return particles;
+      }
+
+      async function timeout(time) {
+        return new Promise((r, j) => {
+          setTimeout(() => {
+            r();
+          }, time);
+        });
       }
 
       function animate() {

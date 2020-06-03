@@ -32,69 +32,68 @@
   <body>
     <div id="app"></div>
 
-    <script src="three.js"></script>
-    <script src="js/libs/stats.min.js"></script>
-    <script src="js/controls/OrbitControls.js"></script>
+    <script src="../three.js"></script>
+    <script src="../js/libs/stats.min.js"></script>
+    <script src="../js/controls/OrbitControls.js"></script>
 
     <script>
-      var scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x222222);
-
-      scene.add(new THREE.AxesHelper(600)); // xyz -> 红绿蓝
+      var scene = new THREE.Scene()
+      scene.background = new THREE.Color(0xf0f0f0)
+      scene.add(new THREE.AxesHelper(600)) // xyz -> 红绿蓝
 
       var camera = new THREE.PerspectiveCamera(
         75,
         app.clientWidth / app.clientHeight,
         1,
-        2000
-      );
-      camera.position.set(20, 20, 100);
+        2000,
+      )
+      camera.position.set(20, 20, 100)
 
-      scene.add(new THREE.AmbientLight(0x222222));
-      var light = new THREE.PointLight(0xffffff);
-      light.position.copy(camera.position);
-      scene.add(light);
+      scene.add(new THREE.AmbientLight(0xf0f0f0))
+      var light = new THREE.PointLight(0xffffff)
+      light.position.copy(camera.position)
+      scene.add(light)
 
-      var renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(app.clientWidth, app.clientHeight);
-      app.appendChild(renderer.domElement);
+      var renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setSize(app.clientWidth, app.clientHeight)
+      app.appendChild(renderer.domElement)
 
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.minDistance = 10;
-      controls.maxDistance = 1000;
+      controls = new THREE.OrbitControls(camera, renderer.domElement)
+      controls.minDistance = 10
+      controls.maxDistance = 1000
 
       // 添加控制器后, 单独设置 camera.lookAt() 不起作用, 需要 camera.lookAt controls.target.set 设置为同一个值
       // 或者只设置 controls.target.set() , 然后调用 controls.update()
-      controls.target.set(0, 0, 0);
-      controls.update();
+      controls.target.set(0, 0, 0)
+      controls.update()
 
       var aMovingBox = new THREE.Mesh(
         new THREE.BoxGeometry(2, 2, 2),
-        new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-      );
-      scene.add(aMovingBox);
+        new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
+      )
+      scene.add(aMovingBox)
 
-      const stats = new Stats();
-      app.appendChild(stats.dom);
+      const stats = new Stats()
+      app.appendChild(stats.dom)
 
       function animate() {
-        stats.update();
+        stats.update()
 
-        aMovingBox.rotation.x += 0.01;
-        aMovingBox.rotation.y += 0.01;
+        aMovingBox.rotation.x += 0.01
+        aMovingBox.rotation.y += 0.01
 
-        aMovingBox.position.x += 0.1;
+        aMovingBox.position.x += 0.1
 
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
+        requestAnimationFrame(animate)
+        renderer.render(scene, camera)
       }
-      animate();
+      animate()
 
-      addEventListener("resize", () => {
-        camera.aspect = app.clientWidth / app.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(app.clientWidth, app.clientHeight);
-      });
+      addEventListener('resize', () => {
+        camera.aspect = app.clientWidth / app.clientHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(app.clientWidth, app.clientHeight)
+      })
 
       var points = [
         { x: -4.447, y: -1.2 },
@@ -302,63 +301,71 @@
         { x: -3.802, y: -1.179 },
         { x: -4.029, y: -1.187 },
         { x: -4.257, y: -1.194 },
-      ];
+      ]
 
       var pts = points.map((m) => {
-        return new THREE.Vector2(m.x * 2, m.y * 2);
-      });
+        return new THREE.Vector2(m.x * 2, m.y * 2)
+      })
 
-      var shape = new THREE.Shape(pts);
+      var shape = new THREE.Shape(pts)
 
-      var holePath = new THREE.Path();
-      holePath.moveTo(points[0].x * 1.98, points[0].y * 1.98);
+      var holePath = new THREE.Path()
+      holePath.moveTo(points[0].x * 1.98, points[0].y * 1.98)
       points.forEach((m) => {
-        return holePath.lineTo(m.x * 1.98, m.y * 1.98);
-      });
-      console.log(holePath);
-      shape.holes.push(holePath);
+        return holePath.lineTo(m.x * 1.98, m.y * 1.98)
+      })
+      // console.log(holePath)
+      shape.holes.push(holePath)
 
       var extrudeSettings = {
+        depth: 8,
         steps: 100,
         bevelEnabled: false,
         extrudePath: new THREE.CatmullRomCurve3([
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(0, 0, -50),
-          new THREE.Vector3(50, 0, -200),
+          new THREE.Vector3(1, 5, -30),
+          new THREE.Vector3(1, 5, -40),
+          // new THREE.Vector3(1, 3, -10),
+          // new THREE.Vector3(1, 2, 0),
+          // new THREE.Vector3(0, 1, 50),
+          //   new THREE.Vector3(50, 0, -200),
         ]),
-      };
-      var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+      }
+
       var material = new THREE.MeshLambertMaterial({
         color: 0x00ff00,
         wireframe: true,
-      });
-      var mesh = new THREE.Mesh(geometry, material);
-      console.log(mesh);
-      scene.add(mesh);
+      })
 
-      //
-      var extrudeSettingsNoExtrudePath = {
-        amount: 8,
-        bevelEnabled: true,
-        bevelSegments: 2,
-        steps: 2,
-        bevelSize: 1,
-        bevelThickness: 1,
-      };
-      var geometry = new THREE.ExtrudeBufferGeometry(
-        shape,
-        extrudeSettingsNoExtrudePath
-      );
+      var myframe = {
+        binormals: [],
+        normals: [],
+        tangents: [],
+      }
+
+      console.log(extrudeSettings.extrudePath)
+      console.log(extrudeSettings.extrudePath.computeFrenetFrames(5, false))
+      myframe = extrudeSettings.extrudePath.computeFrenetFrames(5, false)
+      myframe.normals = myframe.tangents.map((m) => {
+        return new THREE.Vector3(-m.z, 0, m.x)
+      })
+      myframe.binormals = myframe.tangents.map((m) => {
+        return new THREE.Vector3(0, 1, 0)
+      })
+      console.log(myframe)
+
+      extrudeSettings.frames = myframe
+      var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings)
+
       var mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshLambertMaterial({
           color: 0x00ffff,
           wireframe: true,
-        })
-      );
-      console.log(mesh);
-      mesh.position.x += 50;
-      scene.add(mesh);
+        }),
+      )
+      console.log(mesh)
+      //   mesh.position.x += 50;
+      scene.add(mesh)
     </script>
   </body>
 </html>

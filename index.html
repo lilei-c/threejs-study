@@ -1,174 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <title>threejs study</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-<head>
-	<title>threejs study</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="shortcut icon" href="favicon.ico">
-	<style>
-		* {
-			box-sizing: border-box;
-		}
+      html {
+        height: 100%;
+      }
 
-		html {
-			height: 100%;
-		}
+      body {
+        background-color: #ffffff;
+        margin: 0px;
+        height: 100%;
+        color: #555;
+        font-size: 15px;
+        line-height: 18px;
+        overflow: hidden;
+      }
 
-		body {
-			background-color: #ffffff;
-			margin: 0px;
-			height: 100%;
-			color: #555;
-			font-size: 15px;
-			line-height: 18px;
-			overflow: hidden;
-		}
+      h1 {
+        margin-top: 30px;
+        margin-bottom: 40px;
+        margin-left: 20px;
+        font-size: 25px;
+        font-weight: normal;
+      }
 
-		h1 {
-			margin-top: 30px;
-			margin-bottom: 40px;
-			margin-left: 20px;
-			font-size: 25px;
-			font-weight: normal;
-		}
+      a {
+        color: #2194ce;
+        text-decoration: none;
+      }
 
-		a {
-			color: #2194CE;
-			text-decoration: none;
-		}
+      #panel {
+        position: fixed;
+        left: 0px;
+        width: 310px;
+        height: 100%;
+        overflow: auto;
+        background: #fafafa;
+      }
 
-		#panel {
-			position: fixed;
-			left: 0px;
-			width: 310px;
-			height: 100%;
-			overflow: auto;
-			background: #fafafa;
-		}
+      #panel #content {
+        padding: 0px 20px 20px 20px;
+      }
 
-		#panel #content {
-			padding: 0px 20px 20px 20px;
-		}
+      #panel #content .link {
+        color: #2194ce;
+        text-decoration: none;
+        cursor: pointer;
+      }
 
-		#panel #content .link {
-			color: #2194CE;
-			text-decoration: none;
-			cursor: pointer;
-		}
+      #panel #content .selected {
+        color: #ff0000;
+      }
 
-		#panel #content .selected {
-			color: #ff0000;
-		}
+      #panel #content .link:hover {
+        text-decoration: underline;
+      }
 
-		#panel #content .link:hover {
-			text-decoration: underline;
-		}
+      #viewer {
+        position: absolute;
+        border: 0px;
+        left: 310px;
+        width: calc(100% - 310px);
+        height: 100%;
+        overflow: auto;
+      }
 
-		#viewer {
-			position: absolute;
-			border: 0px;
-			left: 310px;
-			width: calc(100% - 310px);
-			height: 100%;
-			overflow: auto;
-		}
+      @media all and (max-width: 640px) {
+        h1 {
+          margin-top: 20px;
+          margin-bottom: 20px;
+        }
 
-		@media all and (max-width: 640px) {
-			h1 {
-				margin-top: 20px;
-				margin-bottom: 20px;
-			}
+        #panel {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 480px;
+          width: 100%;
+          right: 0;
+          z-index: 100;
+          overflow: hidden;
+          border-bottom: 1px solid #dedede;
+        }
 
-			#panel {
-				position: absolute;
-				left: 0;
-				top: 0;
-				height: 480px;
-				width: 100%;
-				right: 0;
-				z-index: 100;
-				overflow: hidden;
-				border-bottom: 1px solid #dedede;
-			}
+        #content {
+          position: absolute;
+          left: 0;
+          top: 90px;
+          right: 0;
+          bottom: 0;
+          font-size: 17px;
+          line-height: 22px;
+          overflow: auto;
+        }
 
-			#content {
-				position: absolute;
-				left: 0;
-				top: 90px;
-				right: 0;
-				bottom: 0;
-				font-size: 17px;
-				line-height: 22px;
-				overflow: auto;
-			}
+        #viewer {
+          position: absolute;
+          left: 0;
+          top: 56px;
+          width: 100%;
+          height: calc(100% - 56px);
+        }
+      }
+    </style>
+  </head>
 
-			#viewer {
-				position: absolute;
-				left: 0;
-				top: 56px;
-				width: 100%;
-				height: calc(100% - 56px);
-			}
-		}
-	</style>
-</head>
+  <body>
+    <div id="app">
+      <div id="panel">
+        <h1>...</h1>
+        <div id="content">
+          <div v-for="(item,index) in list" style="margin: 6px 0;">
+            <a
+              class="link"
+              :class="{selected:index==selectedItem}"
+              @click="select(index)"
+              >{{item}}</a
+            >
+            <a
+              class="link"
+              :class="{selected:index==selectedItem}"
+              @click="openInNewWindow(index)"
+              style="float: right;"
+              title="open in a new window"
+              >...</a
+            >
+          </div>
+        </div>
+      </div>
+      <iframe
+        id="viewer"
+        allowfullscreen
+        allowvr
+        onmousewheel=""
+        :src="src"
+      ></iframe>
+    </div>
 
-<body>
-	<div id="app">
-		<div id="panel">
-			<h1>...</h1>
-			<div id="content">
-				<div v-for="(item,index) in list" style="margin: 6px 0;">
-					<a class="link" :class="{selected:index==selectedItem}" @click="select(index)">{{item}}</a>
-					<a class="link" :class="{selected:index==selectedItem}" @click="openInNewWindow(index)"
-						style="float: right;" title="open in a new window">...</a>
-				</div>
-			</div>
-		</div>
-		<iframe id="viewer" allowfullscreen allowvr onmousewheel="" :src="src"></iframe>
-	</div>
-
-	<script src="vue.js"></script>
-	<script>
-		var app = new Vue({
-			el: '#app',
-			data: {
-				list: [
-					'模拟二维',
-					'模拟二维-曲线与文字',
-					'封装鼠标事件',
-					'曲线-回旋线',
-					'向量与x轴夹角',
-					'Shape',
-					'彩色的Tube',
-					'骨骼',
-					'求凸包'
-				],
-				selectedItem: -1
-				, src: ''
-			}
-			, methods: {
-				select: function (index) {
-					this.selectedItem = index
-					this.src = this.getHref(index)
-					localStorage.setItem('selectedItem', index)
-				},
-				getHref: function (index) {
-					return `${this.list[index]}.html?_=${+ new Date()}`
-				},
-			    openInNewWindow: function (index) {
-					this.select(index)
-					window.open(this.src)
-				},
-			}
-			, mounted: function () {
-				this.selectedItem = localStorage.getItem('selectedItem') || 0
-				this.src = this.getHref(this.selectedItem)
-			}
-		})
-	</script>
-
-</body>
-
+    <script src="vue.js"></script>
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          list: [
+            '模拟二维',
+            '模拟二维-曲线与文字',
+            '封装鼠标事件',
+            '曲线-回旋线',
+            '向量与x轴夹角',
+            'Shape',
+            '彩色的Tube',
+            '骨骼',
+            '求凸包',
+          ],
+          selectedItem: 0,
+          src: '',
+        },
+        methods: {
+          select: function (index) {
+            this.selectedItem = index
+            this.src = this.getHref(index)
+          },
+          getHref: function (index) {
+            return `views/${this.list[index]}.html?_=${+new Date()}`
+          },
+          openInNewWindow: function (index) {
+            this.select(index)
+            window.open(this.src)
+          },
+        },
+        mounted: function () {
+          this.select(this.list.length - 1)
+        },
+      })
+    </script>
+  </body>
 </html>

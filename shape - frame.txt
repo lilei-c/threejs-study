@@ -1,0 +1,25 @@
+
+        /**2020-04-29  nfk 增加计算切向量--开始*/
+        var myframe= {
+            binormals: [],
+            normals: [],
+            tangents: []
+        };
+        myframe.tangents= (path.computeFrenetFrames( 221, false )).tangents;//计算切向量
+        myframe.tangents.forEach(function (item) {
+            var x=-item.z;
+            var y=0;
+            var z=item.x;
+            myframe.normals.push(new THREE.Vector3(x,y,z));
+            myframe.binormals.push(new THREE.Vector3(0, 1, 0));
+        })
+        /**2020-04-29 nfk 增加计算切向量--结束*/
+
+        path.curveType = 'catmullrom';
+        path.closed = false;
+        var geometry = new THREE.ExtrudeBufferGeometry(shape, {
+            bevelEnabled: false, // 无倒角
+            extrudePath: path,
+            steps: 220,
+           frames:myframe
+        })
